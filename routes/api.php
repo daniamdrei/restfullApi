@@ -27,3 +27,9 @@ Route::group(['prefix'=>'posts'] , function(){
         Route::put('{id}/update' , [PostController::class , 'update']);
         Route::delete('{id}/delete' , [PostController::class , 'destroy']);
 });
+
+Route::post('login', [UserController::class, 'login']);
+Route::post('logout' , [UserController::class , 'logout'])->middleware('auth:api');
+//to check the user if auth or not
+
+Route::get('my-data' , [UserController::class , 'myData'])->middleware('auth:api');

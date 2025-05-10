@@ -56,5 +56,43 @@ class UserController extends Controller
         return $this->api_response(true, 'Deleted successfully');
     }
 
+    public function login( Request $request ){
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|min:8'
+        ]);
+        if ($validator->fails()) {
+            $res = [
+                'errors' => $validator->errors(),
+            ];
+            return $this->api_response(false, 'Validation Error', $res, 422);
+        }
+
+        $user = User::query()->where('email' , $request->email)->first();
+        $check = Hash::check($request->password , $user->password);
+
+        if($check){
+
+            $res['user'] = $user ;
+            $res['token']= $user->createToken('api')->plainTextToken;
+            return $this->api_response(true, 'Login Successful', $res);
+        } else {
+            return $this->api_response(false, 'Wrong password', [], 400);
+        }
+
+    }
+
+    public function logout(){
+        $user = auth('api')->user();
+        // $user->currentAccessToken()->delete();
+        return $this->api_response(true, 'Logout Successfully');
+    }
+
+
+    public function myData(){
+        //how to restore auth user's data
+        dd( auth('api')->user());
+    }
 
 }
