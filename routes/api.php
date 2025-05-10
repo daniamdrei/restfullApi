@@ -10,5 +10,20 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::apiResource('user' , UserController::class);
-Route::apiResource('post' , PostController::class);
+//user api
+Route::group(['prefix'=>'users'] , function(){
+    Route::get('all' , [UserController::class , 'index']);
+    Route::post('/' , [UserController::class , 'store']);
+    Route::get('{id}/show' , [UserController::class , 'show']);
+    Route::put('{id}/update' , [UserController::class , 'update']);
+    Route::delete('{id}/delete' , [UserController::class , 'destroy']);
+});
+
+//posts api
+Route::group(['prefix'=>'posts'] , function(){
+    Route::get('all' , [PostController::class , 'index']);
+        Route::post('/' , [PostController::class , 'store']);
+        Route::get('{id}/show' , [PostController::class , 'show']);
+        Route::put('{id}/update' , [PostController::class , 'update']);
+        Route::delete('{id}/delete' , [PostController::class , 'destroy']);
+});

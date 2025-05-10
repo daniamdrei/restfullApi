@@ -9,85 +9,51 @@ use Illuminate\Support\Facades\Validator;
 class PostController extends Controller
 {
     public function index(){
-        $users =Post::all();
-            return response()->json([
-                'message'=>'fetch data successfully',
-                'data'=>$users
-            ] , 200);
+        $posts = Post::all();
+
+        return $this->api_response(true , 'fetch data successfully', $posts , 200 );
+
     }
     public function store(Request $request){
 
-        //validation
-        $validated = Validator::make($request->all(), [
-            'user_id' => 'required|exist:users,id',
-            'title' => 'required',
-            'description' => 'required|max:255',
-        ]);
+        $data = $request->all();
+        $post = Post::query()->create($data);
+        return $this->api_response(true, 'Created successfully', ['post' => $post], 200);
 
-        // if($validated->fails()){
-        //     return response()->json([
-        //         'error'=>$validated->errors()
-        //     ] , 422);
-        // }
-        
-        //if every thing alright then insert into table
-
-        $data= $request->all();
-
-        $post = Post::create($data);
-
-        return response()->json([
-            'message'=>'data stored successfully',
-            'post'=>$post,
-        ],201);
     }
 
     public function show(string $id){
         $data = Post::findOrFail($id);
 
         if(!isset($data)){
-            return response()->json([
-                'error'=>'post Not Found'
-            ] , 404);
+            return $this->api_response(false, 'post Not Found', [], 404);
         }
-         return response()->json([
-            'message'=>'post details',
-            'data'=>$data
-         ]);
+        return $this->api_response(true , 'Fetched successfully' ,$data , 200);
     }
 
-    public function update(Request $request , Post $post){
+    public function update(Request $request , string $id){
 
-        //validation
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|exist:users,id',
-            'title' => 'required',
-            'description' => 'required|max:255',
-        ]);
+        $post = Post::findOrFail($id);
+        if(!isset($post)){
+            return $this->api_response(false, 'post Not Found', [], 404);
+        }
 
-        // if ($validator->fails()) {
-        //    return response()->json(['error'=>$validator->errors()] , 422);
-        // }
-
-        $data = $request->all();
-        $post->update($data);
-        return response()->json([
-            'message'=>'post updated successfully',
-            'post'=>$post,
-        ],201);
+            $data = $request->all();
+            $post->update($data);
+            return $this->api_response(true, 'update done ', $data);
 
     }
 
-    public function destroy(Post $post)
+    public function destroy(string $id)
     {
-        $data = $post->delete();
+        $data = Post::findOrFail($id);
 
-        if (!$data) {
-            return response()->json([
-                'error'=>'post Not Found'
-            ] , 404);
+        if (!isset($data)) {
+            return $this->api_response(false, 'post Not Found', [], 404);
         }
-        return response()->json(['message'=> 'Deleted successfully']);
+
+        $data->delete();
+        return $this->api_response(true, 'Deleted successfully');
     }
 
 
